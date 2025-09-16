@@ -337,7 +337,7 @@ export default function App() {
             Processos Fechados
           </h2>
           {fechados.length === 0 ? (
-            <p style={{ color: cores[tema].textoTabela }}>
+            <p style={{ color: "#fff"}}>
               Nenhum processo fechado ainda.
             </p>
           ) : (
