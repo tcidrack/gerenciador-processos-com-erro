@@ -77,8 +77,9 @@ export default function App() {
     .reverse();
 
   const agrupados = fechados.reduce((acc, p) => {
-    if (!acc[p.usuario]) acc[p.usuario] = [];
-    acc[p.usuario].push(p.numero);
+    const nomeFormatado = formatarNome(p.usuario); // sempre padroniza aqui
+    if (!acc[nomeFormatado]) acc[nomeFormatado] = [];
+    acc[nomeFormatado].push(p.numero);
     return acc;
   }, {});
 
@@ -141,6 +142,32 @@ export default function App() {
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
   }
 
+  function formatarNome(nome) {
+    return nome
+      .toLowerCase()
+      .split(" ")
+      .filter(Boolean)
+      .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+      .join(" ");
+  }  
+
+  function copiarFechados() {
+    let texto = "Processos Fechados ✅\n\n";
+    Object.entries(agrupados).forEach(([usuario, nums]) => {
+      const nomeFormatado = formatarNome(usuario);
+      texto += `${nomeFormatado}:\n${nums.join("\n")}\n\n`;
+    });
+    navigator.clipboard
+      .writeText(texto)
+      .then(() => {
+        alert("Lista copiada!");
+        setMostrarBotaoLimpar(true);
+      })
+      .catch(() => {
+        alert("Não foi possível copiar para a área de transferência.");
+      });
+  }
+  
   return (
     <div
       className="min-h-screen p-6"
@@ -218,7 +245,9 @@ export default function App() {
             onChange={(e) =>
               setUsuario(e.target.value.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, ""))
             }
+            onKeyDown={(e) => e.key === "Enter" && adicionarProcesso()} // ⬅️ aqui
           />
+
           <input
             className="w-full mb-3 p-3 rounded border border-gray-300"
             style={{
@@ -228,6 +257,7 @@ export default function App() {
             placeholder="Número"
             value={numero}
             onChange={(e) => setNumero(e.target.value.replace(/[^0-9]/g, ""))}
+            onKeyDown={(e) => e.key === "Enter" && adicionarProcesso()} // ⬅️ aqui
           />
           <button
             onClick={adicionarProcesso}
